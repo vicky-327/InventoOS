@@ -1,11 +1,10 @@
-services:
-  # Database
-  - type: database
-    name: inventory-db
+databases:
+  - name: inventory-db
     databaseName: inventory_db
     user: postgres
     plan: free
 
+services:
   # Redis
   - type: redis
     name: inventory-redis
