@@ -18,7 +18,7 @@ services:
     env: python
     region: oregon
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: "pip install -r requirements.txt"
     startCommand: "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: DATABASE_URL
@@ -38,7 +38,7 @@ services:
     env: python
     region: oregon
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: "pip install -r requirements.txt"
     startCommand: "celery -A app.workers.celery_app worker --loglevel=info"
     envVars:
       - key: DATABASE_URL
@@ -50,14 +50,13 @@ services:
           name: inventory-redis
           property: connectionString
 
-  # Frontend Static Site
-  - type: web
-    name: inventoos-frontend
+static_sites:
+  - name: inventoos-frontend
     env: static
     region: oregon
     plan: free
     buildCommand: "cd frontend && npm install && npm run build"
-    staticPublishDir: "frontend/dist"
+    publishDir: "frontend/dist"
     envVars:
       - key: VITE_API_URL
         fromService:
