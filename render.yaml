@@ -57,7 +57,7 @@ services:
     region: oregon
     plan: free
     buildCommand: "cd frontend && npm install && npm run build"
-    publishDir: "frontend/dist"
+    staticPublishDir: "frontend/dist"
     envVars:
       - key: VITE_API_URL
         fromService:
