@@ -31,6 +31,8 @@ services:
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
+      - key: PROJECT_NAME
+        value: InventoOS
 
   # Celery Worker
   - type: worker
@@ -50,13 +52,14 @@ services:
           name: inventory-redis
           property: connectionString
 
-static_sites:
-  - name: inventoos-frontend
+  # Frontend Static Site
+  - type: web
+    name: inventoos-frontend
     env: static
     region: oregon
     plan: free
     buildCommand: "cd frontend && npm install && npm run build"
-    publishDir: "frontend/dist"
+    staticPublishPath: "frontend/dist"
     envVars:
       - key: VITE_API_URL
         fromService:
