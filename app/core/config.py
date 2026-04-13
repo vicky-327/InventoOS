@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = "mt_inventory_db"
     
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
+    DATABASE_URL: Optional[str] = None # Added for Render compatibility
     
     # Auth / JWT
     SECRET_KEY: str = "YOUR_SUPER_SECRET_KEY"  # IMPORTANT: Change in production!
@@ -25,7 +26,16 @@ class Settings(BaseSettings):
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if not self.SQLALCHEMY_DATABASE_URI:
-            self.SQLALCHEMY_DATABASE_URI = f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        # Prioritize DATABASE_URL (Render) over SQLALCHEMY_DATABASE_URI
+        db_url = self.DATABASE_URL or self.SQLALCHEMY_DATABASE_URI
+        
+        if db_url and db_url.startswith("postgres://"):
+            db_url = db_url.replace("postgres://", "postgresql://", 1)
+        
+        if not db_url:
+            db_url = f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+            
+        self.SQLALCHEMY_DATABASE_URI = db_url
+        self.DATABASE_URL = db_url # Keep them in sync
 
 settings = Settings()

@@ -35,33 +35,14 @@ services:
       - key: PROJECT_NAME
         value: InventoOS
 
-  # Celery Worker
-  - type: worker
-    name: inventoos-worker
-    env: python
-    region: oregon
-    plan: free
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "celery -A app.workers.celery_app worker --loglevel=info"
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: inventory-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: inventory-redis
-          property: connectionString
+  # REMOVED: inventoos-worker (Service type 'worker' is not available on Render Free Plan)
 
-  # Frontend Static Site
-  - type: web
-    name: inventoos-frontend
+static_sites:
+  - name: inventoos-frontend
     env: static
-    # region: oregon  <-- REMOVED (static sites cannot have a region)
+    region: oregon
     buildCommand: "cd frontend && npm install && npm run build"
-    staticPublishPath: "frontend/dist"
+    publishDir: "frontend/dist"
     envVars:
       - key: VITE_API_URL
-        # Using deterministic URL as Render Blueprints don't support 'property: url' for static build env
         value: "https://inventoos-api.onrender.com/api/v1"
