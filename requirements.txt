@@ -10,3 +10,4 @@ passlib[bcrypt]
 redis
 celery
 python-multipart
+bcrypt
