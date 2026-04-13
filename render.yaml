@@ -26,7 +26,8 @@ services:
           name: inventory-db
           property: connectionString
       - key: REDIS_URL
-        fromRedis:
+        fromService:
+          type: redis
           name: inventory-redis
           property: connectionString
       - key: SECRET_KEY
@@ -48,7 +49,8 @@ services:
           name: inventory-db
           property: connectionString
       - key: REDIS_URL
-        fromRedis:
+        fromService:
+          type: redis
           name: inventory-redis
           property: connectionString
 
@@ -56,13 +58,11 @@ services:
   - type: web
     name: inventoos-frontend
     env: static
-    region: oregon
+    # region: oregon  <-- REMOVED (static sites cannot have a region)
     plan: free
     buildCommand: "cd frontend && npm install && npm run build"
     staticPublishPath: "frontend/dist"
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: inventoos-api
-          property: url
+        # Using deterministic URL as Render Blueprints don't support 'property: url' for static build env
+        value: "https://inventoos-api.onrender.com/api/v1"
