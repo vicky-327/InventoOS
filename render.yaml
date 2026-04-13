@@ -1,0 +1,65 @@
+services:
+  # Database
+  - type: database
+    name: inventory-db
+    databaseName: inventory_db
+    user: postgres
+    plan: free
+
+  # Redis
+  - type: redis
+    name: inventory-redis
+    plan: free
+    ipAllowList: [] # Only allow internal connections
+
+  # Backend Web Service
+  - type: web
+    name: inventoos-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: inventory-db
+          property: connectionString
+      - key: REDIS_URL
+        fromRedis:
+          name: inventory-redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PROJECT_NAME
+        value: InventoOS
+    plan: free
+
+  # Celery Worker
+  - type: worker
+    name: inventoos-worker
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: celery -A app.workers.celery_app worker --loglevel=info
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: inventory-db
+          property: connectionString
+      - key: REDIS_URL
+        fromRedis:
+          name: inventory-redis
+          property: connectionString
+    plan: free
+
+  # Frontend Static Site
+  - type: static
+    name: inventoos-frontend
+    env: static
+    buildCommand: cd frontend && npm install && npm run build
+    publishDir: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: inventoos-api
+          property: url
+    plan: free
