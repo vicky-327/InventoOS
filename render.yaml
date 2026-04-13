@@ -59,7 +59,6 @@ services:
     name: inventoos-frontend
     env: static
     # region: oregon  <-- REMOVED (static sites cannot have a region)
-    plan: free
     buildCommand: "cd frontend && npm install && npm run build"
     staticPublishPath: "frontend/dist"
     envVars:
