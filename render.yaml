@@ -37,12 +37,13 @@ services:
 
   # REMOVED: inventoos-worker (Service type 'worker' is not available on Render Free Plan)
 
-static_sites:
-  - name: inventoos-frontend
+  # Frontend Static Site
+  - type: web
+    name: inventoos-frontend
     env: static
-    region: oregon
+    # region and plan excluded for static env to avoid validation errors
     buildCommand: "cd frontend && npm install && npm run build"
-    publishDir: "frontend/dist"
+    staticPublishPath: "frontend/dist"
     envVars:
       - key: VITE_API_URL
         value: "https://inventoos-api.onrender.com/api/v1"
